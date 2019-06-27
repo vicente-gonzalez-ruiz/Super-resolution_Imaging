@@ -64,6 +64,25 @@ with tf.Graph().as_default(), tf.Session() as sess:
 
     discrim_predictions = models.adversarial(adversarial_image)
 
+    # total variation loss
+
+    batch_shape = (batch_size, PATCH_WIDTH, PATCH_HEIGHT, 3)
+    tv_y_size = utils._tensor_size(enhanced[:,1:,:,:])
+    tv_x_size = utils._tensor_size(enhanced[:,:,1:,:])
+    y_tv = tf.nn.l2_loss(enhanced[:,1:,:,:] - enhanced[:,:batch_shape[1]-1,:,:])
+    x_tv = tf.nn.l2_loss(enhanced[:,:,1:,:] - enhanced[:,:,:batch_shape[2]-1,:])
+    loss_tv = 2 * (x_tv/tv_x_size + y_tv/tv_y_size) / batch_size
+
+    # psnr loss
+
+    enhanced_flat = tf.reshape(enhanced, [-1, PATCH_SIZE])
+
+    loss_mse = tf.reduce_sum(tf.pow(dslr_ - enhanced_flat, 2))/(PATCH_SIZE * batch_size)
+    loss_psnr = 20 * utils.log10(1.0 / tf.sqrt(loss_mse))
+
+    # final loss
+
+    loss_generator =loss_tv
     
     
     for i in range(num_train_iters):
