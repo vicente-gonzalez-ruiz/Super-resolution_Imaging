@@ -38,6 +38,20 @@ num_test_batches = int(test_data.shape[0]/batch_size)
 
 with tf.Graph().as_default(), tf.Session() as sess:
     
+    test_dir = dped_dir + phone.replace("_orig", "") + "/test_data/images/"
+    test_photos = [f for f in os.listdir(test_dir) if os.path.isfile(test_dir + f)]
+
+    if test_subset == "small":
+        # use five first images only
+        test_photos = test_photos[0:5]
+
+    if phone.endswith("_orig"):
+
+        # load pre-trained model
+        saver = tf.train.Saver()
+        saver.restore(sess, "models_orig/" + phone)
+
+    
     # placeholders for training data
 
     phone_ = tf.placeholder(tf.float32, [None, PATCH_SIZE])
