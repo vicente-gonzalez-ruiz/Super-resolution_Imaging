@@ -18,4 +18,4 @@ The project completion will take place between June and September 2019.
 #### Stage 2 (Training)
 ##### -> Training of GAN
 
-#### Stage ....
+#### Stage 3 (Testing)
