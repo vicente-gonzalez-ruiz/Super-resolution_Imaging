@@ -39,6 +39,7 @@ with tf.compat.v1.Session(config=config) as sess:
     saver.restore(sess, "models_orig/" + phone)
 
     test_dir = "input/"
+    print_dir = "output/"
     test_photos = [f for f in os.listdir(test_dir) if os.path.isfile(test_dir + f)]
 
     print("--------------------------------------------------------------------------------")
@@ -49,13 +50,14 @@ with tf.compat.v1.Session(config=config) as sess:
         img_open = Image.open(test_dir + photo)
         width_pc , height_pc = img_open.size
         img_new = img_open.resize((width_pc*2, height_pc*2), Image.ANTIALIAS)
-        #img_new.save(test_dir + photo)
+        #img_new.save(print_dir + photo)
         #---
 
         # load training image and crop it if necessary
 
         print("Processing image " + photo)
         #image = np.float16(misc.imresize(misc.imread(test_dir + photo), res_sizes[phone])) / 255
+        img_orig = np.float16(misc.imresize(img_new, [width_pc, height_pc])) /255
         image = np.float16(misc.imresize(img_new, res_sizes[phone])) / 255
 
 
@@ -66,12 +68,13 @@ with tf.compat.v1.Session(config=config) as sess:
 
         enhanced_2d = sess.run(enhanced, feed_dict={x_: image_crop_2d})
         enhanced_image = np.reshape(enhanced_2d, [IMAGE_HEIGHT, IMAGE_WIDTH, 3])
+        img_open_orig = np.float16( misc.imresize(img_open, [width_pc*2, height_pc*2])) / 255
 
         #before_after = np.hstack((image_crop, enhanced_image))
         photo_name = photo.rsplit(".", 1)[0]
 
         # save the results as .png images
-
-        misc.imsave("output/" + photo_name + "_original_2X.png", image_crop)
+        misc.imsave("output/" + photo_name + "_original_1X.png", img_orig)
+        misc.imsave("output/" + photo_name + "_original_2X.png", img_open_orig)
         misc.imsave("output/" + photo_name + "_processed_2X.png", enhanced_image)
         #misc.imsave("results/" + photo_name + "_before_after.png", before_after)
