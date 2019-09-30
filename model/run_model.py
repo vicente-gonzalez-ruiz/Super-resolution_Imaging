@@ -11,6 +11,8 @@ import utils
 import os
 import sys
 from PIL import Image
+import pywt
+import cv2
 
 
 # process command arguments
@@ -53,6 +55,15 @@ with tf.compat.v1.Session(config=config) as sess:
         #img_new.save(print_dir + photo)
         #---
 
+        imgc = cv2.imread(test_dir + photo)
+        imgc = cv2.resize(imgc, ( width_pc-4, height_pc-4) )
+        imgc = cv2.cvtColor(imgc, cv2.COLOR_BGR2GRAY)
+        
+        # Wavelet transform of image, and plot approximation and details
+        coeff = pywt.dwt2(imgc, 'bior1.3')
+        LL, (LH,HL,HH) = coeff
+
+        
         # load training image and crop it if necessary
 
         print("Processing image " + photo)
@@ -73,8 +84,12 @@ with tf.compat.v1.Session(config=config) as sess:
         #before_after = np.hstack((image_crop, enhanced_image))
         photo_name = photo.rsplit(".", 1)[0]
 
+        for i,a in enumerate([LL, LH, HL, HH]):
+        	cv2.imwrite('output/' + photo_name + '_pywt_1X.png',a)
+        	break
+
         # save the results as .png images
-        misc.imsave("output/" + photo_name + "_original_1X.png", img_orig)
-        misc.imsave("output/" + photo_name + "_original_2X.png", img_open_orig)
+        misc.imsave("output/" + photo_name + "_original_2X.png", img_orig)
+        #misc.imsave("output/" + photo_name + "_original_2X.png", img_open_orig)
         misc.imsave("output/" + photo_name + "_processed_2X.png", enhanced_image)
         #misc.imsave("results/" + photo_name + "_before_after.png", before_after)
