@@ -51,7 +51,7 @@ with tf.compat.v1.Session(config=config) as sess:
         #---
         img_open = Image.open(test_dir + photo)
         width_pc , height_pc = img_open.size
-        img_new = img_open.resize((width_pc*2, height_pc*2), Image.ANTIALIAS)
+        img_new = img_open.resize(( width_pc*2, height_pc*2), Image.ANTIALIAS)
         #img_new.save(print_dir + photo)
         #---
 
@@ -79,17 +79,17 @@ with tf.compat.v1.Session(config=config) as sess:
 
         enhanced_2d = sess.run(enhanced, feed_dict={x_: image_crop_2d})
         enhanced_image = np.reshape(enhanced_2d, [IMAGE_HEIGHT, IMAGE_WIDTH, 3])
-        img_open_orig = np.float16( misc.imresize(img_open, [width_pc*2, height_pc*2])) / 255
+        img_open_orig = np.float16( misc.imresize(img_open, [width_pc//2, height_pc//2])) / 255
 
         #before_after = np.hstack((image_crop, enhanced_image))
         photo_name = photo.rsplit(".", 1)[0]
 
         for i,a in enumerate([LL, LH, HL, HH]):
-        	cv2.imwrite('output/' + photo_name + '_pywt_1X.png',a)
+        	cv2.imwrite('output/' + photo_name + '_pywt_1X_bg.png',a)
         	break
 
         # save the results as .png images
         misc.imsave("output/" + photo_name + "_original_2X.png", img_orig)
-        #misc.imsave("output/" + photo_name + "_original_2X.png", img_open_orig)
+        misc.imsave("output/" + photo_name + "_pywt_1X.png", img_open_orig)
         misc.imsave("output/" + photo_name + "_processed_2X.png", enhanced_image)
         #misc.imsave("results/" + photo_name + "_before_after.png", before_after)
